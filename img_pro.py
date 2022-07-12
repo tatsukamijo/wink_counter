@@ -1,14 +1,19 @@
 import os,sys
 import cv2
 from sqlalchemy import false, true
+import serial
+import time
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_alt2.xml')
 eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye_tree_eyeglasses.xml')
 
 count = 0
 temp_side = false
 temp_both = false
+
+print("Open Port")
+ser =serial.Serial("COM7", 9600)
 
 while True:
     ret, rgb = cap.read()
@@ -42,14 +47,20 @@ while True:
         
         if count == 10:
             cv2.putText(rgb, 'reached 10!',
-                (500,50), cv2.FONT_HERSHEY_PLAIN, 3, (0,100,255), 2, cv2.LINE_AA)
+                (100,50), cv2.FONT_HERSHEY_PLAIN, 3, (0,100,255), 2, cv2.LINE_AA)
+            
+            ser.write("1".encode())
 
     cv2.putText(rgb, f'wink count {count}',
-                (500,100), cv2.FONT_HERSHEY_PLAIN, 3, (0,100,255), 2, cv2.LINE_AA)
+                (100,100), cv2.FONT_HERSHEY_PLAIN, 3, (0,100,255), 2, cv2.LINE_AA)
 
     cv2.imshow('frame', rgb)
     if cv2.waitKey(1) == 27:
         break  # esc to quit
+        
+print("Close Port")
+ser.close()
+
 
 cap.release()
 cv2.destroyAllWindows()
